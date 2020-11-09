@@ -1,0 +1,211 @@
+<h3>{{Titulo}} <small>{{TituloAccionABMC[AccionABMC]}}</small></h3>
+
+<!-- Formulario Filtro de busqueda, se ve cuando la accion es Listado(busqueda/listado)-->
+<form
+  name="FormFiltro"
+  [formGroup]="FormFiltro"
+  class="bg-light"
+  *ngIf="AccionABMC == 'L'"
+>
+  <!-- Botones -->
+  <div class="row justify-content-center">
+    <button type="button" class="btn btn-primary" (click)="Buscar()">
+      <span class="fas fa-search"> </span> Consultar
+    </button>
+    &nbsp;
+    <button type="button" class="btn btn-primary" (click)="Agregar()">
+      <span class="fas fa-plus"> </span>
+      Agregar
+    </button>
+  </div>
+</form>
+
+<!-- Tabla de resutados de busqueda y Paginador-->
+<div id="divTablaResultados" *ngIf="AccionABMC == 'L' && Lista?.length > 0">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th class="text-center">Descripcion</th>
+        <th class="text-center">Importe</th>
+        <th class="text-center">Cantidad de Hs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dto of Lista">
+        <td>{{dto.descripcion | uppercase}}</td>
+        <td class="text-right">{{dto.importe | currency:'$'}}</td>
+        <td class="text-right">{{dto.cantidadhoras}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- Paginador-->
+  <div id="divPaginador" class="col-sm-12">
+    <div class="row bg-light">
+      <div class="col-sm-3">
+        <span class="label label-default font-weight-bold"
+          >Registros: {{RegistrosTotal}}</span
+        >
+      </div>
+      <div class="col-sm-6 text-center">
+        <ngb-pagination
+          [(page)]="Pagina"
+          (pageChange)="Buscar()"
+          [pageSize]="10"
+          [maxSize]="10"
+          [collectionSize]="RegistrosTotal"
+        ></ngb-pagination>
+      </div>
+      <div class="col-sm-3 text-right">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="ImprimirListado()"
+        >
+          <span class="fas fa-print"></span> Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--No se encontraron registros-->
+<div
+  id="divMsjFormFiltro"
+  class="alert alert-info"
+  *ngIf="AccionABMC == 'L' && !SinBusquedasRealizadas && Lista?.length== 0"
+>
+  <span class="fas fa-exclamation-sign"></span>{{Mensajes['SD']}}
+  <!-- texto: No se encontraron registros -->
+</div>
+
+<!-- Registro en Alta,Modificacion y Consulta -->
+<form
+  name="FormReg"
+  [formGroup]="FormReg"
+  *ngIf="AccionABMC != 'L'"
+  class="bg-light"
+>
+  <fieldset [disabled]="AccionABMC==='C'">
+    <!--campo descripcion-->
+    <div class="form-group row">
+      <label class="col-form-label col-sm-2 col-sm-offset-2" for="descripcion"
+        >Descripcion <span class="text-danger">*</span></label
+      >
+      <div class="col-sm-6">
+        <input
+          type="text"
+          class="form-control"
+          formControlName="descripcion"
+          [ngClass]="{'is-invalid': (FormReg.controls.descripcion.touched || submitted)  
+            && FormReg.controls.descripcion.errors}"
+        />
+
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.descripcion.touched || submitted) 
+                        && FormReg.controls.descripcion.errors?.required"
+        >
+          Dato requerido.
+        </span>
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.descripcion.touched || submitted) 
+                       && (FormReg.controls.descripcion.errors?.minlength || FormReg.controls.descripcion.errors?.maxlength) "
+        >
+          Dato texto, 5 a 30 caracteres.
+        </span>
+      </div>
+    </div>
+
+    <!--campo importe-->
+    <div class="row form-group">
+      <label class="col-form-label col-sm-2 col-sm-offset-2" for="importe"
+        >Importe <span class="text-danger">*</span></label
+      >
+      <div class="col-sm-6">
+        <input
+          type="text"
+          name="importe"
+          class="form-control"
+          formControlName="importe"
+          [ngClass]="{'is-invalid': (FormReg.controls.importe.touched || submitted)  
+            && FormReg.controls.importe.errors}"
+        />
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.importe.touched || submitted) 
+                       && FormReg.controls.importe.errors?.required"
+        >
+          Dato requerido.
+        </span>
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.importe.touched || submitted) 
+               && FormReg.controls.importe.errors?.pattern"
+        >
+          Dato numérico, 1 a 6 dígitos.
+        </span>
+      </div>
+    </div>
+
+    <!--campo cantidadhoras-->
+    <div class="form-group row">
+      <label
+        class="col-form-label col-sm-2 col-sm-offset-2"
+        for="cantidadhoras"
+      >
+        Cantidad de horas <span class="text-danger">*</span>
+      </label>
+      <div class="col-sm-6">
+        <input
+          type="text"
+          name="cantidadhoras"
+          class="form-control"
+          formControlName="cantidadhoras"
+          [ngClass]="{'is-invalid': (FormReg.controls.cantidadhoras.touched || submitted)  
+            && FormReg.controls.cantidadhoras.errors}"
+        />
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.cantidadhoras.touched || submitted) 
+                        && FormReg.controls.cantidadhoras.errors?.required"
+        >
+          Dato requerido.
+        </span>
+        <span
+          class="text-danger"
+          *ngIf="(FormReg.controls.cantidadhoras.touched || submitted) 
+                        && FormReg.controls.cantidadhoras.errors?.pattern"
+        >
+          Dato numérico, 1 a 7 dígitos.
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Botones Grabar, Cancelar/Volver' -->
+  <div class="row justify-content-center">
+    <button
+      type="button"
+      *ngIf="AccionABMC!=='C'"
+      class="btn btn-primary"
+      (click)="Grabar()"
+    >
+      <span class="fas fa-check"></span> Grabar
+    </button>
+    &nbsp;
+    <button type="button" class="btn btn-warning" (click)="Volver()">
+      <span class="fas fa-undo"></span> {{AccionABMC=='C' ? 'Volver' :
+      'Cancelar'}}
+    </button>
+  </div>
+
+  <!--texto: Revisar los datos ingresados...-->
+  <div
+    id="divMsjFormRegistro"
+    *ngIf="submitted && FormReg.invalid"
+    class="row alert alert-danger"
+  >
+    <span class="fas fa-exclamation-sign"></span>{{Mensajes['RD']}}
+  </div>
+</form>
